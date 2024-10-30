@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Wayang</title>
+</head>
+<body>
+    <h1>Game Wayang</h1>
+    <script>
+// feren start
+class Karakter {
+    constructor(nama, kekuatan, senjata, attackPower, defense) {
+        this.nama = nama;
+        this.kekuatan = kekuatan; // harusnya darah. gpp lh
+        this.senjata = senjata;
+        this.attackPower = attackPower;
+        this.defense = defense; // ketahanan
+        this.isGuarding = false; // status bertahan
+    }
+
+    bertahan() {
+        this.isGuarding = true; // set status bertahan jadi true
+        console.log(`${this.nama} bertahan.`);
+    }
+// menyerang dulu yg dijelasin. baru bertahan
+    menyerang(musuh) {
+        // kalkulasi damage, (random * 4 * power karakter) + 1 - ketahanan musuh
+        const damage = Math.max(0, Math.floor(Math.random() * 4 * this.attackPower) + 1 - musuh.defense);
+        
+        // musuh lg bertahan = damage / 4, hasil taro di effective damage
+        const effectiveDamage = musuh.isGuarding ? Math.floor(damage * 0.25) : damage;
+        musuh.kekuatan -= effectiveDamage;
+
+        if (musuh.kekuatan < 0) musuh.kekuatan = 0;
+        console.log(`${this.nama} menyerang ${musuh.nama} dengan ${this.senjata} dan memberikan ${effectiveDamage} damage!`);
+        
+        
+        musuh.isGuarding = false; // reset status bertahan stlh diserang
+    }
+
+    masihHidup() {
+        return this.kekuatan > 0;
+    }
+}
+// feren sampe sini
+// wendo start
+class GameWayang {
+    constructor() {
+        this.karakterWayang = [
+            // nama, darah, senjata, power, ketahanan
+            new Karakter("Yudistira", 100, "Tombak", 20, 20),
+            new Karakter("Bima", 120, "Kapak", 16, 24),
+            new Karakter("Arjuna", 100, "Panah", 36, 4),
+            new Karakter("Duryodana", 90, "Palu", 26, 14),
+            new Karakter("Dursasana", 80, "Pedang", 30, 10)
+        ];
+        this.player = null;
+        this.komputer = null;
+    }
+// wendo sampe sini
+// naila start
+    pilihKarakter() {
+        console.log("Pilih karakter Anda:");
+        // line 66-69 looping. ini buat list semua karakter
+        this.karakterWayang.forEach((karakter, index) => {
+            // index + 1 krn index mulai dari 0
+            console.log(`${index + 1}. ${karakter.nama} (Nyawa: ${karakter.kekuatan}, Senjata: ${karakter.senjata}, Kekuatan: ${karakter.attackPower}, Ketahanan: ${karakter.defense})`);
+        });
+
+        const pilihan = parseInt(prompt("Masukkan nomor karakter yang ingin Anda pilih:")) - 1;
+        this.player = this.karakterWayang[pilihan];
+        // line 74-82 pilihan karakter komputer
+        do {
+            // pilihan komputer random
+            this.komputer = this.karakterWayang[Math.floor(Math.random() * this.karakterWayang.length)];
+        } while (this.komputer === this.player);
+
+        console.log(`Anda memilih: ${this.player.nama}`);
+        console.log(`Komputer memilih: ${this.komputer.nama}`);
+        console.log("Pertarungan dimulai!");
+    }
+// naila sampe sini
+// tiara + diana start
+    mulaiPertarungan() {
+        // saat salah satu dari player / komputer masih hidup
+        while (this.player.masihHidup() && this.komputer.masihHidup()) {
+            // suruh player utk input aksi (1 = menyerang, 2 = bertahan)
+            const aksi = prompt("Giliran Anda:\n1. Menyerang\n2. Bertahan\nMasukkan aksi:");
+            // player menyerang
+            if (aksi === "1") {
+                this.player.menyerang(this.komputer);
+            } 
+            // player bertahan
+            else if (aksi === "2") {
+                this.player.bertahan();
+            }
+            // !this.komputer.masihHidup() = komputer mati
+            if (!this.komputer.masihHidup()) { 
+                console.log(`${this.komputer.nama} telah kalah! Anda menang!`);
+                break;
+            }
+
+            // aksi komputer random
+            // jika hasil Math.random kurang dari 0.5 (Math.random() < 0.5) maka komputer menyerang
+            const aksiKomputer = Math.random() < 0.5 ? "1" : "2";
+            console.log(`Giliran Komputer: ${this.komputer.nama}`);
+            // komputer menyerang
+            if (aksiKomputer === "1") {
+                this.komputer.menyerang(this.player);
+            } 
+            // komputer bertahan
+            else {
+                this.komputer.bertahan();
+            }
+            // sama kaya line 99, cuma player mati
+            if (!this.player.masihHidup()) {
+                console.log(`${this.player.nama} telah kalah! Komputer menang!`);
+                break; 
+            }
+
+            console.log(`Nyawa ${this.player.nama}: ${this.player.kekuatan}`);
+            console.log(`Nyawa ${this.komputer.nama}: ${this.komputer.kekuatan}`);
+        }
+    }
+
+    mulaiGame() {
+        this.pilihKarakter();
+        this.mulaiPertarungan();
+    }
+}
+
+const game = new GameWayang();
+game.mulaiGame();
+// end
+    </script>
+</body>
+</html>
